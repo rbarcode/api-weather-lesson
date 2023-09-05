@@ -4,16 +4,21 @@ import './css/styles.css';
 
 // Business Logic
 
-function getWeather(city) {
+function getWeather(input) {
   let request = new XMLHttpRequest();
-  const url = `http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${process.env.API_KEY}`;
+  let url;
+  if (isNaN(input)) {
+    url = `http://api.openweathermap.org/data/2.5/weather?q=${input}&appid=${process.env.API_KEY}&units=imperial`;
+  } else {
+    url = `http://api.openweathermap.org/data/2.5/weather?zip=${input}&appid=${process.env.API_KEY}&units=imperial`;
+  }
 
-  request.addEventListener("loadend", function() {
+  request.addEventListener("loadend", function () {
     const response = JSON.parse(this.responseText);
     if (this.status === 200) {
-      printElements(response, city);
+      printElements(response, input);
     } else {
-      printError(this, response, city);
+      printError(this, response, input);
     }
   });
 
@@ -23,13 +28,24 @@ function getWeather(city) {
 
 // UI Logic
 
-function printElements(apiResponse, city) {
-  document.querySelector('#showResponse').innerText = `The humidity in ${city} is ${apiResponse.main.humidity}%. 
-  The temperature in Kelvins is ${apiResponse.main.temp} degrees.`;
+function printElements(apiResponse) {
+  // let responseTimeStamp = new Date(apiResponse.sys.sunrise);
+  // let sunriseTime = responseTimeStamp.toLocaleTimeString();
+
+  // formula: cels = (fahr-32) * (5/9)
+  let temp = apiResponse.main.temp;
+  let textTemp = "Fahrenheit";
+  if (apiResponse.sys.country !== 'US') {
+    temp = ((apiResponse.main.temp - 32) * (5 / 9)).toFixed(2);
+    textTemp = "Celsius";
+  }
+
+  document.querySelector('#showResponse').innerText = `The humidity in ${apiResponse.name} is ${apiResponse.main.humidity}%. 
+  The temperature in ${textTemp} is ${temp} degrees. Local sunrise will begin at ${new Date(apiResponse.sys.sunrise).toLocaleTimeString()}.`;
 }
 
-function printError(request, apiResponse, city) {
-  document.querySelector('#showResponse').innerText = `There was an error accessing the weather data for ${city}: ${request.status} ${request.statusText}: ${apiResponse.message}`;
+function printError(request, apiResponse, input) {
+  document.querySelector('#showResponse').innerText = `There was an error accessing the weather data for ${input}: ${request.status} ${request.statusText}: ${apiResponse.message}`;
 }
 
 function handleFormSubmission(event) {
@@ -39,6 +55,6 @@ function handleFormSubmission(event) {
   getWeather(city);
 }
 
-window.addEventListener("load", function() {
+window.addEventListener("load", function () {
   document.querySelector('form').addEventListener("submit", handleFormSubmission);
 });
