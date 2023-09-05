@@ -22,6 +22,21 @@ function getWeather(input) {
     }
   });
 
+  //Function "try...catch" code for the business logic
+
+  // request.addEventListener("loadend", function () {
+  //   const response = JSON.parse(this.responseText);
+  //   try {
+  //     if (this.status === 200) {
+  //       printElements(response, input);
+  //     } else {
+  //       throw Error("Red Alert!");
+  //     }
+  //   } catch (error) {
+  //     printError(error.message);
+  //   }
+  // });
+
   request.open("GET", url, true);
   request.send();
 }
@@ -29,10 +44,10 @@ function getWeather(input) {
 // UI Logic
 
 function printElements(apiResponse) {
+  // Optional variables to replace template literal is the #showResponse code block
   // let responseTimeStamp = new Date(apiResponse.sys.sunrise);
   // let sunriseTime = responseTimeStamp.toLocaleTimeString();
 
-  // formula: cels = (fahr-32) * (5/9)
   let temp = apiResponse.main.temp;
   let textTemp = "Fahrenheit";
   if (apiResponse.sys.country !== 'US') {
@@ -47,6 +62,12 @@ function printElements(apiResponse) {
 function printError(request, apiResponse, input) {
   document.querySelector('#showResponse').innerText = `There was an error accessing the weather data for ${input}: ${request.status} ${request.statusText}: ${apiResponse.message}`;
 }
+
+//Functioning "try...catch" code for UI logic
+
+// function printError(error) {
+//   document.querySelector('#showResponse').innerText = `There was an error: ${error}`;
+// }
 
 function handleFormSubmission(event) {
   event.preventDefault();
